@@ -1,4 +1,4 @@
-# -*- coding: UTF-8 -*-
+ # -*- coding: UTF-8 -*-
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from mirage import fields
@@ -128,6 +128,7 @@ DB_TYPE_CHOICES = (
     ("clickhouse", "ClickHouse"),
     ("goinception", "goInception"),
     ("cassandra", "Cassandra"),
+    ("starrocks", "StarRocks"),
 )
 
 

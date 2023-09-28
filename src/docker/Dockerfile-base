@@ -5,6 +5,14 @@ ENV DOCKERIZE_VERSION v0.6.1
 ENV SOAR_VERSION 0.11.0
 
 WORKDIR /opt
+COPY dockerize-alpine-linux-amd64-v0.6.1.tar.gz /opt
+RUN tar -C /opt -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz 
+RUN rm /opt/dockerize-alpine-linux-amd64-v0.6.1.tar.gz
+ADD SQLAdvisor.zip /opt
+RUN yum -y install unzip
+RUN unzip /opt/SQLAdvisor.zip
+COPY my2sql /opt
+COPY soar /opt
 
 RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://mirror.centos.org|baseurl=https://mirrors.tuna.tsinghua.edu.cn|g' -i /etc/yum.repos.d/CentOS-*.repo \
     && yum install -y epel-release \
@@ -19,8 +27,7 @@ RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://mirror.centos.
     && make && make install \
     && /usr/local/python3/bin/pip3 install -i https://pypi.tuna.tsinghua.edu.cn/simple virtualenv \
 #dockerize
-    && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
-    && tar -C /opt -xzvf dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
+ #   && wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-alpine-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
 #sqladvisor
     && yum -y install https://mirrors.ustc.edu.cn/percona/percona/yum/percona-release-latest.noarch.rpm \
     && sed -e 's|http://repo.percona.com/|https://mirrors.ustc.edu.cn/percona/|g' -i /etc/yum.repos.d/percona-*.repo \
@@ -28,7 +35,7 @@ RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://mirror.centos.
     && yum -y install percona-toolkit \
     && ln -fs /usr/lib64/mysql/libmysqlclient.so.18 /usr/lib64/libperconaserverclient_r.so \
     && cd /opt \
-    && git clone https://github.com/hhyo/SQLAdvisor.git --depth 3 \
+#    && git clone https://github.com/hhyo/SQLAdvisor.git --depth 3 \
     && cd /opt/SQLAdvisor/ \
     && cmake -DBUILD_CONFIG=mysql_release -DCMAKE_BUILD_TYPE=debug -DCMAKE_INSTALL_PREFIX=/usr/local/sqlparser ./ \
     && make && make install \
@@ -37,9 +44,9 @@ RUN sed -e 's|^mirrorlist=|#mirrorlist=|g' -e 's|^#baseurl=http://mirror.centos.
     && make \
 #soar
     && cd /opt \
-    && wget https://github.com/XiaoMi/soar/releases/download/$SOAR_VERSION/soar.linux-amd64 -O soar \
+ #   && wget https://github.com/XiaoMi/soar/releases/download/$SOAR_VERSION/soar.linux-amd64 -O soar \
 #my2sql
-    && wget https://raw.githubusercontent.com/liuhr/my2sql/master/releases/centOS_release_7.x/my2sql -O my2sql \
+  #  && wget https://raw.githubusercontent.com/liuhr/my2sql/master/releases/centOS_release_7.x/my2sql -O my2sql \
 #mongo
     && wget -c https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-rhel70-3.6.20.tgz \
     && tar -xvf mongodb-linux-x86_64-rhel70-3.6.20.tgz 

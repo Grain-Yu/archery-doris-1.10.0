@@ -73,6 +73,38 @@ USE_X_FORWARDED_HOST = True
 # 请求限制
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640
 
+# 解决跨域问题
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ORIGIN_WHITELIST = (
+    'http://localhost',
+)
+
+CORS_ALLOW_METHODS = (
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+    'VIEW',
+)
+
+CORS_ALLOW_HEADERS = (
+    'XMLHttpRequest',
+    'X_FILENAME',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'Target-Language',
+)
+
 AVAILABLE_ENGINES = {
     "mysql": {"path": "sql.engines.mysql:MysqlEngine"},
     "cassandra": {"path": "sql.engines.cassandra:CassandraEngine"},
@@ -85,6 +117,7 @@ AVAILABLE_ENGINES = {
     "mongo": {"path": "sql.engines.mongo:MongoEngine"},
     "phoenix": {"path": "sql.engines.phoenix:PhoenixEngine"},
     "odps": {"path": "sql.engines.odps:ODPSEngine"},
+    "starrocks": {"path": "sql.engines.starrocks:StarRocksEngine"},
 }
 ENABLED_ENGINES = env("ENABLED_ENGINES")
 
@@ -96,6 +129,7 @@ INSTALLED_APPS = (
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "django_q",
     "sql",
     "sql_api",
@@ -192,43 +226,80 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器，则COOKIE失效
 
 # 该项目本身的mysql数据库地址
 DATABASES = {
-    "default": {
-        **env.db(),
-        **{
-            "DEFAULT_CHARSET": "utf8mb4",
-            "CONN_MAX_AGE": 50,
-            "OPTIONS": {
-                "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
-                "charset": "utf8mb4",
-            },
-            "TEST": {
-                "NAME": "test_archery",
-                "CHARSET": "utf8mb4",
-            },
+    # "default": {
+    #     **env.db(),
+    #     **{
+    #         "DEFAULT_CHARSET": "utf8mb4",
+    #         "CONN_MAX_AGE": 50,
+    #         "OPTIONS": {
+    #             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+    #             "charset": "utf8mb4",
+    #         },
+    #         "TEST": {
+    #             "NAME": "test_archery",
+    #             "CHARSET": "utf8mb4",
+    #         },
+    #     },
+    # }
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'archery', # 数据库名称
+        'USER': 'root', # 数据库用户
+        'PASSWORD': '123456', # 数据库密码
+        'HOST': 'mysql', # 数据库HOST，如果是docker启动并且关联，可以使用容器名连接
+        'PORT': '3306',  # 数据库端口
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", # SQL_MODE，为了兼容select * group by，可以按需调整
+            'charset': 'utf8mb4'
+        },
+        'TEST': {
+            'NAME': 'test_archery',
+            'CHARSET': 'utf8mb4',
         },
     }
 }
 
 # Django-Q
 Q_CLUSTER = {
-    "name": "archery",
-    "workers": env("Q_CLUISTER_WORKERS", default=4),
-    "recycle": 500,
-    "timeout": env("Q_CLUISTER_TIMEOUT", default=60),
-    "compress": True,
-    "cpu_affinity": 1,
-    "save_limit": 0,
-    "queue_limit": 50,
-    "label": "Django Q",
-    "django_redis": "default",
-    "sync": env("Q_CLUISTER_SYNC"),  # 本地调试可以修改为True，使用同步模式
+    'name': 'archery',
+    'workers': 4,
+    'recycle': 500,
+    'timeout': 60,
+    'compress': True,
+    'cpu_affinity': 1,
+    'save_limit': 0,
+    'queue_limit': 50,
+    'label': 'Django Q',
+    'django_redis': 'default',
+    'sync': True  # 本地调试可以修改为True，使用同步模式
+
 }
+# Q_CLUSTER = {
+#     "name": "archery",
+#     "workers": env("Q_CLUISTER_WORKERS", default=4),
+#     "recycle": 500,
+#     "timeout": env("Q_CLUISTER_TIMEOUT", default=60),
+#     "compress": True,
+#     "cpu_affinity": 1,
+#     "save_limit": 0,
+#     "queue_limit": 50,
+#     "label": "Django Q",
+#     "django_redis": "default",
+#     "sync": env("Q_CLUISTER_SYNC"),  # 本地调试可以修改为True，使用同步模式
+# }
 
 # 缓存配置
 CACHES = {
-    "default": env.cache(),
-}
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/0", # redis://host:port/db
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "PASSWORD": "123456"
 
+        }
+    }
+}
 # https://docs.djangoproject.com/en/3.2/ref/settings/#std-setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
@@ -422,16 +493,16 @@ LOGGING = {
             "level": "WARNING",
             "propagate": False,
         },
-        # 'django.db': {  # 打印SQL语句，方便开发
-        #     'handlers': ['console', 'default'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
-        # 'django.request': {  # 打印请求错误堆栈信息，方便开发
-        #     'handlers': ['console', 'default'],
-        #     'level': 'DEBUG',
-        #     'propagate': False
-        # },
+        'django.db': {  # 打印SQL语句，方便开发
+            'handlers': ['console', 'default'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'django.request': {  # 打印请求错误堆栈信息，方便开发
+            'handlers': ['console', 'default'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
     },
 }
 

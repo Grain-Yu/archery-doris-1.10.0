@@ -1,9 +1,10 @@
-FROM hhyo/archery-base:sha-b3a08ef
+FROM grainyu/archery-base:2.0
 
 WORKDIR /opt/archery
 
 ADD http://mirrors.ustc.edu.cn/epel/RPM-GPG-KEY-EPEL-7 /etc/pki/rpm-gpg/
 COPY . /opt/archery/
+RUN chmod a+x /opt/archery/src/docker/startup.sh
 
 #archery
 RUN cd /opt \
@@ -17,7 +18,8 @@ RUN cd /opt \
     && mv /opt/my2sql /opt/archery/src/plugins/ \
     && yum clean all \
     && rm -rf /var/cache/yum/* \
-    && rm -rf ~/.cache
+    && rm -rf ~/.cache 
+  #  && chmod a+x /opt/archery/src/docker/startup.sh
 
 #port
 EXPOSE 9123
