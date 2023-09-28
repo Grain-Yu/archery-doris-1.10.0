@@ -52,6 +52,7 @@ env = environ.Env(
             "phoenix",
             "odps",
             "cassandra",
+            "doris",
         ],
     ),
 )
@@ -117,7 +118,7 @@ AVAILABLE_ENGINES = {
     "mongo": {"path": "sql.engines.mongo:MongoEngine"},
     "phoenix": {"path": "sql.engines.phoenix:PhoenixEngine"},
     "odps": {"path": "sql.engines.odps:ODPSEngine"},
-    "starrocks": {"path": "sql.engines.starrocks:StarRocksEngine"},
+    "doris": {"path": "sql.engines.starrocks:StarRocksEngine"},
 }
 ENABLED_ENGINES = env("ENABLED_ENGINES")
 

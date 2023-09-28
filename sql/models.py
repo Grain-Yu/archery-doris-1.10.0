@@ -128,7 +128,7 @@ DB_TYPE_CHOICES = (
     ("clickhouse", "ClickHouse"),
     ("goinception", "goInception"),
     ("cassandra", "Cassandra"),
-    ("starrocks", "StarRocks"),
+    ("doris", "Doris"),
 )
 
 

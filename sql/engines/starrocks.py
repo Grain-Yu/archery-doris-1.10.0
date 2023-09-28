@@ -44,11 +44,11 @@ class StarRocksEngine(EngineBase):
 
     @property
     def name(self):
-        return "starrocks"
+        return "Doris"
 
     @property
     def info(self):
-        return "StarRocks engine"
+        return "Doris engine"
 
     @property
     def auto_backup(self):
@@ -79,7 +79,7 @@ class StarRocksEngine(EngineBase):
             result_set.rows = rows
             result_set.affected_rows = len(rows)
         except Exception as e:
-            logger.warning(f"StarRocks语句执行报错，语句：{sql}，错误信息{e}")
+            logger.warning(f"Doris语句执行报错，语句：{sql}，错误信息{e}")
             result_set.error = str(e).split("Stack trace")[0]
         finally:
             if close_conn:
@@ -263,7 +263,7 @@ class StarRocksEngine(EngineBase):
                 cursor.execute(statement)
             cursor.close()
         except Exception as e:
-            logger.warning(f"StarRocks语句执行报错，语句：{sql}，错误信息{e}")
+            logger.warning(f"Doris语句执行报错，语句：{sql}，错误信息{e}")
             result.error = str(e).split("Stack trace")[0]
         if close_conn:
             self.close()
