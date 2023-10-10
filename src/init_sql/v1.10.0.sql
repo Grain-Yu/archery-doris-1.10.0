@@ -19,5 +19,5 @@ alter table instance_account add unique index uidx_instanceid_user_host_dbname(`
 -- 然后在索引重建后，再重新添加外键
 alter table instance_account add constraint fk_account_sql_instance_id foreign key (instance_id) references sql_instance(id);
 
---- 增加 ssl 支持
+-- 增加 ssl 支持
 ALTER TABLE sql_instance ADD is_ssl tinyint(1) DEFAULT 0  COMMENT '是否启用SSL';
