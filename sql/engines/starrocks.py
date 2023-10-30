@@ -254,20 +254,62 @@ class StarRocksEngine(EngineBase):
 # insert into test.orders partition(p20210820) WITH LABEL `label4` values ('2021-08-20', 4, 4, 4, 4, '西瓜', 2, 4, 1, 1);
 
     def execute(self, db_name=None, sql="", close_conn=True):
-        """原生执行语句"""
-        result = ResultSet(full_sql=sql)
+        """执行sql语句 返回 Review set"""
+        execute_result = ReviewSet(full_sql=sql)
         conn = self.get_connection(db_name=db_name)
-        try:
-            cursor = conn.cursor()
-            for statement in sqlparse.split(sql):
+        rowid = 1
+        sql_list = sqlparse.split(sql)
+        for statement in sql_list:
+            try:
+                cursor = conn.cursor()
                 cursor.execute(statement)
-            cursor.close()
-        except Exception as e:
-            logger.warning(f"Doris语句执行报错，语句：{sql}，错误信息{e}")
-            result.error = str(e).split("Stack trace")[0]
+                cursor.close()
+                execute_result.rows.append(
+                    ReviewResult(
+                        id=rowid,
+                        errlevel=0,
+                        stagestatus="Execute Successfully",
+                        errormessage="None",
+                        sql=statement,
+                        affected_rows=0,
+                        execute_time=0,
+                    )
+                )
+            except Exception as e:
+                logger.warning(
+                    f"{self.name} 命令执行报错，语句：{sql}， 错误信息：{traceback.format_exc()}"
+                )
+                execute_result.error = str(e)
+                execute_result.rows.append(
+                    ReviewResult(
+                        id=rowid,
+                        errlevel=2,
+                        stagestatus="Execute Failed",
+                        errormessage=f"异常信息：{e}",
+                        sql=statement,
+                        affected_rows=0,
+                        execute_time=0,
+                    )
+                )
+                break
+            rowid += 1
+        if execute_result.error:
+            for statement in sql_list[rowid:]:
+                execute_result.rows.append(
+                    ReviewResult(
+                        id=rowid,
+                        errlevel=2,
+                        stagestatus="Execute Failed",
+                        errormessage="前序语句失败, 未执行",
+                        sql=statement,
+                        affected_rows=0,
+                        execute_time=0,
+                    )
+                )
+                rowid += 1
         if close_conn:
             self.close()
-        return result
+        return execute_result
 
     def close(self):
         if self.conn:
