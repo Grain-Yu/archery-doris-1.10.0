@@ -262,7 +262,8 @@ class StarRocksEngine(EngineBase):
         for statement in sql_list:
             try:
                 cursor = conn.cursor()
-                cursor.execute(statement)
+                with FuncTimer() as t:
+                    effect_row = cursor.execute(statement)
                 cursor.close()
                 execute_result.rows.append(
                     ReviewResult(
@@ -271,8 +272,8 @@ class StarRocksEngine(EngineBase):
                         stagestatus="Execute Successfully",
                         errormessage="None",
                         sql=statement,
-                        affected_rows=0,
-                        execute_time=0,
+                        affected_rows=effect_row,
+                        execute_time=t.cost,
                     )
                 )
             except Exception as e:
@@ -287,8 +288,8 @@ class StarRocksEngine(EngineBase):
                         stagestatus="Execute Failed",
                         errormessage=f"异常信息：{e}",
                         sql=statement,
-                        affected_rows=0,
-                        execute_time=0,
+                        affected_rows=effect_row,
+                        execute_time=t.cost,
                     )
                 )
                 break
@@ -299,7 +300,7 @@ class StarRocksEngine(EngineBase):
                     ReviewResult(
                         id=rowid,
                         errlevel=2,
-                        stagestatus="Execute Failed",
+                        stagestatus="Audit Completed",
                         errormessage="前序语句失败, 未执行",
                         sql=statement,
                         affected_rows=0,
