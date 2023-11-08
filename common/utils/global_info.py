@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 from sql.utils.workflow_audit import Audit
 from archery import display_version
+from archery import settings
 from common.config import SysConfig
 from sql.models import TwoFactorAuthConfig
 
@@ -31,4 +32,5 @@ def global_info(request):
         "archery_version": display_version,
         "watermark_enabled": watermark_enabled,
         "twofa_type": twofa_type,
+        "register_help": settings.REGISTER_HELP_URL,
     }

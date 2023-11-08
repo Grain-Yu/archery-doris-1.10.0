@@ -225,6 +225,9 @@ SESSION_COOKIE_AGE = 60 * 300  # 300分钟
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器，则COOKIE失效
 
+#注册帮助页面的URL
+REGISTER_HELP_URL = "https://archerydms.com"
+
 # 该项目本身的mysql数据库地址
 DATABASES = {
     # "default": {
