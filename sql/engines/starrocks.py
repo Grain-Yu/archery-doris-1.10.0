@@ -258,6 +258,7 @@ class StarRocksEngine(EngineBase):
         execute_result = ReviewSet(full_sql=sql)
         conn = self.get_connection(db_name=db_name)
         rowid = 1
+        effect_row = 0
         sql_list = sqlparse.split(sql)
         for statement in sql_list:
             try:
@@ -298,7 +299,7 @@ class StarRocksEngine(EngineBase):
             for statement in sql_list[rowid:]:
                 execute_result.rows.append(
                     ReviewResult(
-                        id=rowid,
+                        id=rowid + 1,
                         errlevel=2,
                         stagestatus="Audit Completed",
                         errormessage="前序语句失败, 未执行",
