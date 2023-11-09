@@ -10,7 +10,7 @@ from django.views.decorators.cache import cache_page
 from pyecharts.charts import Line
 from pyecharts import options as opts
 from common.utils.chart_dao import ChartDao
-from import pymysql import escape_string
+from pymysql import escape_string
 
 from sql.utils.resource_group import user_instances
 from common.utils.extend_json_encoder import ExtendJSONEncoder
