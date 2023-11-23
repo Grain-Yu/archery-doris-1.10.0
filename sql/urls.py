@@ -50,6 +50,7 @@ urlpatterns = [
     path("sqlquery/", views.sqlquery),
     path("slowquery/", views.slowquery),
     path("sqladvisor/", views.sqladvisor),
+    path("sqlreview/", views.sqlreview),
     path("slowquery_advisor/", views.sqladvisor),
     path("queryapplylist/", views.queryapplylist),
     path(
