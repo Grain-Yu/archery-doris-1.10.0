@@ -23,6 +23,7 @@ from sql import (
     archiver,
     audit_log,
     user,
+    manual_review,
 )
 from sql.utils import tasks
 from common.utils import ding_api
@@ -51,6 +52,8 @@ urlpatterns = [
     path("slowquery/", views.slowquery),
     path("sqladvisor/", views.sqladvisor),
     path("sqlreview/", views.sqlreview),
+    path("sqlreview/list/", manual_review.listreview),
+    path("sqlreview/edit/", manual_review.editreview),
     path("slowquery_advisor/", views.sqladvisor),
     path("queryapplylist/", views.queryapplylist),
     path(

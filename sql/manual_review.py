@@ -35,8 +35,11 @@ from sql.engines import get_engine, ResultSet
 from sql.utils.resource_group import user_instances
 from .models import Instance, InstanceAccount
 
+from sql.engines.mysql import get_review_status_summary
+from sql.engines.mysql import set_review_details
+
 @permission_required("sql.menu_instance_account", raise_exception=True)
-def sqllist(request):
+def listreview(request):
     """获取优化详情列表"""
     checksum = request.POST.get("review_checksum")
 
@@ -45,72 +48,49 @@ def sqllist(request):
     try:
         instance = user_instances(
             request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
-        ).get(instance_name='archery')
+        ).get(id=1)
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
-    
 
-
-
-    
-
-    # 获取已录入用户
-    cnf_users = dict()
-    for user in InstanceAccount.objects.filter(instance=instance).values(
-        "id", "user", "host", "db_name", "remark"
-    ):
-        user["saved"] = True
-        cnf_users[get_instanceaccount_unique_value(instance.db_type, user)] = user
-    # 获取所有用户
+    #获取checksum对应的优化详情
     query_engine = get_engine(instance=instance)
-    query_result = query_engine.get_instance_users_summary()
+    query_result = query_engine.get_review_status_summary(checksum)
     if not query_result.error:
-        rows = []
-        key = get_instanceaccount_unique_key(db_type=instance.db_type)
-        for row in query_result.rows:
-            # 合并数据
-            if row[key] in cnf_users.keys():
-                row = dict(row, **cnf_users[row[key]])
-            rows.append(row)
-        # 过滤参数
-        if saved:
-            rows = [row for row in rows if row["saved"]]
-
+        rows = query_result.rows
         result = {"status": 0, "msg": "ok", "rows": rows}
     else:
         result = {"status": 1, "msg": query_result.error}
-
-    # 关闭连接
-    query_engine.close()
     return HttpResponse(
         json.dumps(result, cls=ExtendJSONEncoder, bigint_as_string=True),
         content_type="application/json",
     )
 
-def create_instance_user(self, **kwargs):
-        """实例账号管理功能，创建实例账号"""
-        # escape
-        user = self.escape_string(kwargs.get("user", ""))
-        host = self.escape_string(kwargs.get("host", ""))
-        password1 = self.escape_string(kwargs.get("password1", ""))
-        remark = kwargs.get("remark", "")
-        # 在一个事务内执行
-        hosts = host.split("|")
-        create_user_cmd = ""
-        accounts = []
-        for host in hosts:
-            create_user_cmd += (
-                f"create user '{user}'@'{host}' identified by '{password1}';"
-            )
-            accounts.append(
-                {
-                    "instance": self.instance,
-                    "user": user,
-                    "host": host,
-                    "password": password1,
-                    "remark": remark,
-                }
-            )
-        exec_result = self.execute(db_name="mysql", sql=create_user_cmd)
-        exec_result.rows = accounts
-        return exec_result
+@permission_required("sql.instance_account_manage", raise_exception=True)
+def editreview(request):
+    """编辑优化详情"""
+    checksum = request.POST.get("checksum")
+    reviewed_by = request.POST.get("reviewed_by", "")
+    reviewed_on = request.POST.get("reviewed_on", "")
+    comments = request.POST.get("comments", "")
+    reviewed_status = request.POST.get("reviewed_status", "")
+
+    if (
+         not all([checksum, reviewed_by, reviewed_on, comments,reviewed_status])
+    ):
+        return JsonResponse({"status": 1, "msg": "参数不完整，请确认后提交", "data": []})
+
+    try:
+        instance = user_instances(
+            request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
+        ).get(id=1)
+    except Instance.DoesNotExist:
+        return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
+    
+    exec_engine = get_engine(instance=instance)    
+    exec_result = exec_engine.set_review_details(
+        checksum=checksum, reviewed_by=reviewed_by, reviewed_on=reviewed_on,comments=comments,reviewed_status=reviewed_status
+    )
+    # 关闭连接
+    engine.close()
+
+    return JsonResponse({"status": 0, "msg": "", "data": []})
