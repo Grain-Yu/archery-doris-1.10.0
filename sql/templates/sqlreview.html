@@ -2,6 +2,7 @@
 
 
 
+
 {% block content %}
 
     <!-- 表格-->
@@ -11,43 +12,40 @@
         </table>
     </div>
     <!-- 修改密码模态框 -->
-    <div class="modal fade" id="reset-pwd" tabindex="-1" role="dialog">
+    <div class="modal fade" id="edit-review" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">修改密码
-                        实例: <span id="reset-instance" style="color: red"></span>
-                        账号: <span id="reset-user" style="color: red"></span></h4>
-                    <h6 style="color:red">注：此操作会修改账号密码，同时变更平台录入信息，请谨慎操作</h6>
+                    <h4 class="modal-title">编辑详情</h4>
                 </div>
                 <div class="modal-body form-group">
                     <div class="form-group row">
-                        <label for="password1" class="col-sm-3 col-form-label">
-                            <span style="color:red">*</span>密码</label>
+                        <label for="comments" class="col-sm-3 col-form-label">
+                            <span style="color:red">*</span>内容</label>
                         <div class="col-sm-9">
-                            <input type="password" id="reset-pwd1" class="form-control" autocomplete="new-password"
-                                   aria-describedby="resetpwdHelpBlock"
-                                   placeholder="请输入密码">
-                            <small id="resetpwdHelpBlock" class="form-text text-muted">
-                                密码需要8-32个字符，至少包含英文、数字和特殊符号
+                            <input type="text" id="comments" class="form-control"
+                                   placeholder="请填写详情">
                             </small>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label for="password2" class="col-sm-3 col-form-label">
-                            <span style="color:red">*</span>确认密码</label>
+                        <label for="reviewed-status" class="col-sm-3 col-form-label">
+                            <span style="color:red">*</span>优化状态</label>
                         <div class="col-sm-9">
-                            <input type="password" id="reset-pwd2" class="form-control"
-                                   autocomplete="new-password"
-                                   placeholder="请再次输入密码">
+                            <input type="text" id="reviewed-status" class="form-control"
+                                   aria-describedby="editrewHelpBlock"
+                                   placeholder="请填写优化状态">
+                            <small id="editrewHelpBlock" class="form-text text-muted">
+                                    请输入：open/resolved/pending/closed
+                            </small>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-                    <button type="button" class="btn btn-danger" id="resetPwdBtn">修改</button>
+                    <button type="button" class="btn btn-danger" id="editRevBtn">修改</button>
                 </div>
             </div>
         </div>
@@ -122,18 +120,18 @@
                 },{
                     title: '优化状态',
                     field: 'reviewed_status'
+                },{
+                    title: '操作',
+                    field: '',
+                    formatter: function (value, row, index) {
+                        let btn_edit_review = "<button class=\"btn btn-warning btn-xs\" review_checksum=\"" + row.checksum + "\" onclick=\"review_edit(this)" + "\">编辑</button>\n";
+                        return btn_edit_review
+                    }
                 }],
                 onLoadSuccess: function (data) {
                     if (data.status !== 0) {
                         alert("数据加载失败！" + data.msg);
-                        $('#btn-create-account').addClass('disabled');
-                        $('#btn-create-account').prop('disabled', true);
-                    } else if ($("#instance").val()) {
-                        $("#btn-create-account").removeClass('disabled');
-                        $("#btn-create-account").prop('disabled', false);
-
-                    }
-                },
+                }},
                 onLoadError: onLoadErrorCallback,
                 onSearch: function (e) {
                     //传搜索参数给服务器
@@ -145,10 +143,10 @@
 
         //编辑页面
         function review_edit(obj) {
-            var review_checksum = sessionStorage.getItem('review_checksum');
-            $("#reset-pwd").modal('show');
+            review_checksum = $(obj).attr("review_checksum");
+            $("#edit-review").modal('show');
             //编辑详情
-            $("#resetPwdBtn").unbind("click").click(function () {
+            $("#editRevBtn").unbind("click").click(function () {
                 var dt = new Date();
                 var date = dt.getDate();
                 var time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds();
@@ -168,9 +166,9 @@
                     },
                     success: function (data) {
                         if (data.status === 0) {
-                            $('#reset-pwd').modal('hide');
-                            $("#reset-pwd input").val("");
-                            user_list()
+                            $('#edit-review').modal('hide');
+                            $("#edit-review input").val("");
+                            review_list()
                         } else {
                             alert(data.msg);
                         }
@@ -181,6 +179,9 @@
                 });
             });
         }
-
+        //初始化数据
+        $(document).ready(function () {
+            review_list();
+        });
     </script>
 {% endblock %}

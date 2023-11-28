@@ -892,21 +892,9 @@ class MysqlEngine(EngineBase):
         self.close()
         return query_result
 
-    def set_review_details(self, checksum):
+    def set_review_details(self, checksum, reviewed_by, reviewed_on, comments, reviewed_status):
         """sql优化详情功能，获取checksum对应的sql优化详情"""
-        sql_review_summary = f"""select reviewed_by,reviewed_on,comments,reviewed_status from archery.mysql_slow_query_review where checksum='{checksum}';"""
-        query_result = self.query("mysql", sql_review_summary)
-        if not query_result.error:
-            review_summary = query_result.rows
-            rows = []
-            row = {
-                "checksum": checksum,
-                "reviewed_by": review_summary[0],
-                "reviewed_on": review_summary[1],
-                "comments": review_summary[2],
-                "reviewed_status": review_summary[3],
-            }
-            rows.append(row)
-        query_result.rows = rows
+        sql_update_review = f"""update archery.mysql_slow_query_review set reviewed_by='{reviewed_by}',reviewed_on='{reviewed_on}',comments='{comments}',reviewed_status='{reviewed_status}' where checksum='{checksum}';"""
+        exec_result = self.query("mysql", sql_update_review)
         self.close()
-        return query_result
+        return exec_result

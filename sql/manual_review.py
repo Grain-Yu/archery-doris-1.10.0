@@ -90,7 +90,4 @@ def editreview(request):
     exec_result = exec_engine.set_review_details(
         checksum=checksum, reviewed_by=reviewed_by, reviewed_on=reviewed_on,comments=comments,reviewed_status=reviewed_status
     )
-    # 关闭连接
-    engine.close()
-
     return JsonResponse({"status": 0, "msg": "", "data": []})
