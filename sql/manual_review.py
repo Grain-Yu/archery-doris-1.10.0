@@ -5,38 +5,26 @@ import MySQLdb
 import pymysql
 import re
 
-import schemaobject
-import sqlparse
-from MySQLdb.constants import FIELD_TYPE
-from schemaobject.connection import build_database_url
 
-from sql.engines.goinception import GoInceptionEngine
-from sql.utils.sql_utils import get_syntax_type, remove_comments
-from . import EngineBase
-from .models import ResultSet, ReviewResult, ReviewSet
-from sql.utils.data_masking import data_masking
-from common.config import SysConfig
 
 # -*- coding: UTF-8 -*-
-import MySQLdb
+
 import simplejson as json
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.password_validation import validate_password
-from django.core.exceptions import ValidationError
+
 
 from django.http import HttpResponse, JsonResponse
 from sql.utils.instance_management import (
     SUPPORTED_MANAGEMENT_DB_TYPE,
-    get_instanceaccount_unique_value,
-    get_instanceaccount_unique_key,
 )
 from common.utils.extend_json_encoder import ExtendJSONEncoder
 from sql.engines import get_engine, ResultSet
 from sql.utils.resource_group import user_instances
 from .models import Instance, InstanceAccount
 
-from sql.engines.mysql import get_review_status_summary
-from sql.engines.mysql import set_review_details
+from sql.engines.mysql import MysqlEngine
+
+
 
 @permission_required("sql.menu_instance_account", raise_exception=True)
 def listreview(request):
@@ -53,7 +41,7 @@ def listreview(request):
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
 
     #获取checksum对应的优化详情
-    query_engine = get_engine(instance=instance)
+    query_engine = MysqlEngine(instance=instance)
     query_result = query_engine.get_review_status_summary(checksum)
     if not query_result.error:
         rows = query_result.rows
@@ -86,7 +74,7 @@ def editreview(request):
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
     
-    exec_engine = get_engine(instance=instance)    
+    exec_engine = MysqlEngine(instance=instance)    
     exec_result = exec_engine.set_review_details(
         checksum=checksum, reviewed_by=reviewed_by, reviewed_on=reviewed_on,comments=comments,reviewed_status=reviewed_status
     )
