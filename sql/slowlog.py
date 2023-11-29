@@ -67,7 +67,7 @@ def slowquery_review(request):
                 fingerprint__icontains=search,
                 **filter_kwargs
             )
-            .annotate(SQLText=F("fingerprint"), SQLId=F("checksum"), ReviewedBy=F("reviedwd_by"), ReviewedOn=F("reviewed_on"), Comments=F("comments"), ReviewedStatus=F("reviewed_status"))
+            .annotate(SQLText=F("fingerprint"), SQLId=F("checksum"), ReviewedBy=F("reviewed_by"), ReviewedOn=F("reviewed_on"), Comments=F("comments"), ReviewedStatus=F("reviewed_status"))
             .values("SQLText", "SQLId", "ReviewedBy", "ReviewedOn", "Comments", "ReviewedStatus")
             .annotate(
                 CreateTime=Max("slowqueryhistory__ts_max"),
