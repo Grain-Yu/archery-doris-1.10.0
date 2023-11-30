@@ -36,7 +36,7 @@ def listreview(request):
     try:
         instance = user_instances(
             request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
-        ).get(id=1)
+        ).get(instance_name="archery_internal")
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
 
@@ -70,7 +70,7 @@ def editreview(request):
     try:
         instance = user_instances(
             request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
-        ).get(id=1)
+        ).get(instance_name="archery_internal")
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
     
