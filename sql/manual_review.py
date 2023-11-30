@@ -26,7 +26,7 @@ from sql.engines.mysql import MysqlEngine
 
 
 
-@permission_required("sql.menu_instance_account", raise_exception=True)
+@permission_required("sql.menu_slowquery", raise_exception=True)
 def listreview(request):
     """获取优化详情列表"""
     checksum = request.POST.get("review_checksum")
@@ -53,7 +53,7 @@ def listreview(request):
         content_type="application/json",
     )
 
-@permission_required("sql.instance_account_manage", raise_exception=True)
+@permission_required("sql.menu_slowquery", raise_exception=True)
 def editreview(request):
     """编辑优化详情"""
     checksum = request.POST.get("checksum")

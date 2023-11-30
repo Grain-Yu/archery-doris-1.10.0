@@ -32,11 +32,11 @@
                     </div>
                     <div class="form-group row">
                         <label for="reviewed-status" class="col-sm-3 col-form-label">
-                            <span style="color:red">*</span>优化状态</label>
+                            <span style="color:red">*</span>状态</label>
                         <div class="col-sm-9">
                             <input type="text" id="reviewed-status" class="form-control"
                                    aria-describedby="editrewHelpBlock"
-                                   placeholder="请填写优化状态">
+                                   placeholder="请填写当前状态">
                             <small id="editrewHelpBlock" class="form-text text-muted">
                                     请输入：open/resolved/pending/closed
                             </small>
@@ -106,19 +106,21 @@
                         }
                     },
                 columns: [{
-                    title: '校验和',
+                    title: 'SQLID',
                     field: 'checksum'
                 },{
                     title: '提交人',
                     field: 'reviewed_by'
                 },{
-                    title: '提交日期',
+                    title: '更新日期',
                     field: 'reviewed_on'
                 },{
                     title: '内容',
-                    field: 'comments'
+                    field: 'comments',
+                    width: "30",
+                    widthUnit: "%"
                 },{
-                    title: '优化状态',
+                    title: '状态',
                     field: 'reviewed_status'
                 },{
                     title: '操作',
