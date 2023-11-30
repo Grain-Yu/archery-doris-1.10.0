@@ -400,7 +400,7 @@ def slowquery(request):
     """SQL慢日志页面"""
     return render(request, "slowquery.html")
 
-@permission_required("sql.menu_sqlreview", raise_exception=True)
+@permission_required("sql.menu_slowquery", raise_exception=True)
 def sqlreview(request):
     """SQL优化详情页面"""
     return render(request, "sqlreview.html")
