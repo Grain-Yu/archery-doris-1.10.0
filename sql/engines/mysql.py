@@ -882,10 +882,10 @@ class MysqlEngine(EngineBase):
             rows = []
             row = {
                 "checksum": checksum,
-                "reviewed_by": review_summary[0],
-                "reviewed_on": review_summary[1],
-                "comments": review_summary[2],
-                "reviewed_status": review_summary[3],
+                "reviewed_by": review_summary[0][0],
+                "reviewed_on": review_summary[0][1],
+                "comments": review_summary[0][2],
+                "reviewed_status": review_summary[0][3],
             }
             rows.append(row)
         query_result.rows = rows
