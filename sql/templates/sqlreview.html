@@ -34,12 +34,12 @@
                         <label for="reviewed-status" class="col-sm-3 col-form-label">
                             <span style="color:red">*</span>状态</label>
                         <div class="col-sm-9">
-                            <input type="text" id="reviewed-status" class="form-control"
-                                   aria-describedby="editrewHelpBlock"
-                                   placeholder="请填写当前状态">
-                            <small id="editrewHelpBlock" class="form-text text-muted">
-                                    请输入：open/resolved/pending/closed
-                            </small>
+                            <select id="reviewed-status" name="reviewed-status-name">
+                                <option value="open">open</option>
+                                <option value="resolved">resolved</option>
+                                <option value="pending">pending</option>
+                                <option value="closed">closed</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -146,6 +146,7 @@
         //编辑页面
         function review_edit(obj) {
             review_checksum = $(obj).attr("review_checksum");
+            user=  user;
             $("#edit-review").modal('show');
             //编辑详情
             $("#editRevBtn").unbind("click").click(function () {
@@ -157,7 +158,7 @@
                     dataType: "json",
                     data: {
                         checksum: review_checksum,
-                        reviewed_by: 'admin',
+                        reviewed_by: user,
                         reviewed_on: currenttime,
                         comments: $("#comments").val(),
                         reviewed_status: $("#reviewed-status").val(),
