@@ -228,6 +228,9 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # 关闭浏览器，则COOKIE失效
 #注册帮助页面的URL
 REGISTER_HELP_URL = "https://archerydms.com"
 
+#archery数据库的实例名称，用于"编辑优化详情"的功能
+ARCHERY_INS_NAME = "archery_internal"
+
 # 该项目本身的mysql数据库地址
 DATABASES = {
     # "default": {

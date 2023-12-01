@@ -23,7 +23,7 @@ from sql.utils.resource_group import user_instances
 from .models import Instance, InstanceAccount
 
 from sql.engines.mysql import MysqlEngine
-
+from archery.settings import ARCHERY_INS_NAME
 
 
 @permission_required("sql.menu_slowquery", raise_exception=True)
@@ -36,7 +36,7 @@ def listreview(request):
     try:
         instance = user_instances(
             request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
-        ).get(instance_name="archery_internal")
+        ).get(instance_name=ARCHERY_INS_NAME)
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
 
@@ -70,7 +70,7 @@ def editreview(request):
     try:
         instance = user_instances(
             request.user, db_type=SUPPORTED_MANAGEMENT_DB_TYPE
-        ).get(instance_name="archery_internal")
+        ).get(instance_name=ARCHERY_INS_NAME)
     except Instance.DoesNotExist:
         return JsonResponse({"status": 1, "msg": "你所在组未关联该实例", "data": []})
     
