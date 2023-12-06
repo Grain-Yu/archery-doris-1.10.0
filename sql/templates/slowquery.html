@@ -458,7 +458,16 @@
                     }, {
                         title: '优化-内容',
                         field: 'Comments',
-                        sortable:true
+                        formatter: function (value, row, index) {
+                            if (value != null) {
+                                if (value.length > 20) {
+                                    var sql = value.substr(0, 20) + '...';
+                                    return sql;
+                                } else {
+                                    return value
+                                }
+                            }
+                        }
                     }, {
                         title: '优化-状态',
                         field: 'ReviewedStatus',
